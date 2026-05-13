@@ -1,0 +1,224 @@
+# Hasan AI Algo Trading System Configuration
+# Version: 1.0.0
+
+# Market Regime Configuration
+market_regime:
+  bull:
+    spy_min_ma_days: 200
+    vix_max: 25
+    breadth_threshold: 0.55
+    allow_breakout: true
+    allow_trend_continuation: true
+    allow_pullback: true
+    description: "Bullish market - Allow all quality setups"
+  
+  neutral:
+    spy_range_tight: true
+    allow_breakout: false
+    allow_trend_continuation: false
+    allow_pullback: true
+    allow_vwap_reclaim: true
+    description: "Neutral market - Only pullback/VWAP setups"
+  
+  bear:
+    spy_below_ma200: true
+    reject_most_trades: true
+    allow_strong_catalyst_only: true
+    description: "Bearish market - Avoid new longs"
+  
+  news_lock:
+    reject_all_trades: true
+    manage_existing_only: true
+    description: "NEWS_LOCK - Manage existing positions only"
+
+# Screener Configuration
+screener:
+  filters:
+    min_average_volume: 1000000
+    min_dollar_volume: 50000000
+    min_rvol: 1.5
+    min_current_volume_ratio: 1.5
+    max_today_change: 0.10
+    min_today_change: 0.0
+    max_already_up: 0.20
+    max_spread: 0.05
+  
+  catalysts:
+    - earnings_report
+    - fda_approval
+    - regulatory_news
+    - major_partnership
+    - analyst_upgrade
+    - sector_rotation
+  
+  ortex_signals:
+    short_interest_threshold: 20
+    utilization_threshold: 75
+    days_to_cover_threshold: 5
+    
+  scan_interval_seconds: 60
+
+# Signal Agent Configuration
+signal:
+  entry_types:
+    - vwap_reclaim
+    - higher_low_pullback
+    - resistance_breakout
+    - trend_continuation
+  
+  technical_indicators:
+    vwap: enabled
+    ema:
+      - period: 9
+      - period: 20
+      - period: 50
+      - period: 100
+      - period: 200
+    rsi:
+      period: 14
+      min: 52
+      max: 72
+    adx:
+      period: 14
+      min_threshold: 18
+    volume:
+      sma_period: 20
+  
+  candle_analysis:
+    avoid_parabolic: true
+    max_body_size: 2.0
+    min_body_size: 0.3
+
+# Score Engine Configuration
+scoring:
+  volume_score:
+    max_points: 20
+    weights:
+      rvol: 0.4
+      dollar_volume: 0.3
+      current_volume_ratio: 0.3
+  
+  trend_score:
+    max_points: 20
+    weights:
+      ema_alignment: 0.4
+      price_above_vwap: 0.3
+      rsi_zone: 0.3
+  
+  structure_score:
+    max_points: 20
+    weights:
+      higher_low: 0.4
+      support_near: 0.3
+      breakout_level: 0.3
+  
+  momentum_score:
+    max_points: 20
+    weights:
+      adx_strength: 0.4
+      buy_pressure: 0.3
+      no_parabolic: 0.3
+  
+  market_score:
+    max_points: 10
+    weights:
+      spy_regime: 0.5
+      market_breadth: 0.5
+  
+  catalyst_score:
+    max_points: 10
+    weights:
+      catalyst_strength: 0.5
+      ortex_pressure: 0.5
+  
+  thresholds:
+    buy_minimum: 70
+    watch_minimum: 60
+    watch_maximum: 69
+
+# Hard Gate Rules
+hard_gates:
+  liquidity:
+    min_average_volume: 1000000
+    min_dollar_volume: 50000000
+    max_spread: 0.05
+  
+  technical:
+    price_above_vwap: true
+    price_above_ema20: true
+    min_risk_reward: 2.0
+  
+  structural:
+    clear_stop_loss: true
+    no_parabolic_chase: true
+  
+  market:
+    reject_in_panic: true
+    reject_in_news_lock: true
+
+# Risk Management
+risk_management:
+  position_sizing:
+    risk_per_trade: 0.005
+    daily_max_loss: 0.02
+  
+  stop_loss:
+    use_structure: true
+    min_distance_pct: 0.005
+    move_to_breakeven_at: 1.0
+  
+  take_profit:
+    partial_at_pct: 0.02
+    main_target_rr: 2.0
+  
+  session_management:
+    exit_before_close: "15:45"
+    avoid_first_candles: 5
+    avoid_last_candles: 10
+
+# Exit Rules
+exit_rules:
+  take_profit_hit: true
+  stop_loss_hit: true
+  close_below_ema9_candles: 2
+  loses_vwap: true
+  structure_breaks: true
+  sell_pressure_dominant: true
+  market_condition_turns: true
+  session_near_close: true
+  time_based_exit_hours: 3
+
+# Execution
+execution:
+  broker: alpaca
+  mode: paper
+  use_bracket_orders: true
+  use_limit_orders: true
+  order_timeout_minutes: 60
+
+# Logging
+logging:
+  level: INFO
+  log_to_file: true
+  log_dir: ./logs
+  trade_log: trades.json
+  signal_log: signals.json
+  performance_log: performance.json
+  console_output: true
+
+# Paper Trading Requirements
+paper_trading:
+  min_trading_days: 30
+  min_trades: 10
+  min_win_rate: 0.40
+  min_profit_factor: 1.5
+  max_drawdown: 0.10
+
+# Learning Agent
+learning:
+  analyze_daily: true
+  analyze_setup_types: true
+  analyze_market_regimes: true
+  optimize_parameters: false
+  track_fake_breakouts: true
+  track_false_breakdowns: true
