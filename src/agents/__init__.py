@@ -1,1 +1,1 @@
-"""Trading Agents Module"""
+"""Trading Agents"""

@@ -2,7 +2,7 @@
 
 import logging
 from datetime import datetime
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional
 from dataclasses import dataclass, field
 
 logger = logging.getLogger(__name__)
@@ -26,18 +26,15 @@ class StockCandidate:
     timestamp: datetime = field(default_factory=datetime.now)
     
     def is_liquid(self, config: Dict) -> bool:
-        """Check if stock meets liquidity requirements"""
         return (
             self.average_volume >= config.get('min_average_volume', 1000000) and
             self.dollar_volume >= config.get('min_dollar_volume', 50000000)
         )
     
     def is_extended(self, config: Dict) -> bool:
-        """Check if stock is too extended"""
         return self.today_change_pct >= config.get('max_today_change', 0.10)
     
     def already_up_too_much(self, config: Dict) -> bool:
-        """Check if stock is already up too much"""
         return self.days_up >= config.get('max_already_up_pct', 0.20)
 
 
@@ -45,25 +42,13 @@ class ScreenerAgent:
     """Scans for high-quality stock trading candidates"""
     
     def __init__(self, config: Dict = None):
-        """Initialize screener agent
-        
-        Args:
-            config: Configuration dictionary
-        """
         self.config = config or {}
         self.candidates = []
         self.filtered_candidates = []
         self.last_scan_time = None
         
     def screen(self, stocks_data: List[Dict]) -> List[StockCandidate]:
-        """Screen stocks for trading candidates
-        
-        Args:
-            stocks_data: List of stock data dictionaries
-            
-        Returns:
-            List of screened candidates
-        """
+        """Screen stocks for trading candidates"""
         logger.info(f"Screening {len(stocks_data)} stocks...")
         
         candidates = []
@@ -103,7 +88,6 @@ class ScreenerAgent:
         """Check if candidate passes all filters"""
         filters = self.config.get('filters', {})
         
-        # Liquidity checks
         if candidate.average_volume < filters.get('min_average_volume', 1000000):
             logger.debug(f"{candidate.ticker}: Insufficient average volume")
             return False
@@ -112,12 +96,10 @@ class ScreenerAgent:
             logger.debug(f"{candidate.ticker}: Insufficient dollar volume")
             return False
         
-        # Volume checks
         if candidate.rvol < filters.get('min_rvol', 1.5):
             logger.debug(f"{candidate.ticker}: RVOL too low ({candidate.rvol:.2f})")
             return False
         
-        # Change checks
         if candidate.today_change_pct < filters.get('min_today_change', 0.0):
             logger.debug(f"{candidate.ticker}: Change too low")
             return False
@@ -130,7 +112,6 @@ class ScreenerAgent:
             logger.debug(f"{candidate.ticker}: Already up too much")
             return False
         
-        # Spread check
         if candidate.spread > filters.get('max_spread', 0.05):
             logger.debug(f"{candidate.ticker}: Spread too wide ({candidate.spread:.2f})")
             return False
@@ -170,7 +151,6 @@ class ScreenerAgent:
             
             score = 0
             
-            # Short interest weight
             short_interest = float(ortex.get('short_interest_pct', 0))
             if short_interest > 30:
                 score += 30
@@ -179,21 +159,18 @@ class ScreenerAgent:
             elif short_interest > 10:
                 score += 10
             
-            # Utilization weight
             utilization = float(ortex.get('utilization_pct', 0))
             if utilization > 90:
                 score += 20
             elif utilization > 75:
                 score += 10
             
-            # Cost to borrow weight
             cost = float(ortex.get('cost_to_borrow_pct', 0))
             if cost > 50:
                 score += 15
             elif cost > 20:
                 score += 10
             
-            # Days to cover weight
             days = float(ortex.get('days_to_cover', 0))
             if days > 5:
                 score += 10

@@ -1,373 +1,225 @@
-# Hasan AI Algo Trading System 🤖📈
+# Hasan AI Algo Trading System
 
 **Professional Adaptive Long-Only US Stock Trading System**
 
-Kuchli adaptive logic bilan 5-minute bullish stock trading setups topuvchi, capital protection first filosofiyasi bilan qurilgan tizim.
+A sophisticated 5-minute bullish stock trading system designed for capital preservation with adaptive market regime detection.
 
-## 🎯 Asosiy Maqsad
+## System Architecture
 
-Bozor shartlariga moslashuvchi yuqori sifatli 5-minute bullish stock trading setuplarini topish va paper trading orqali test qilish.
+### Core Components
 
-## 📋 Asosiy Qoidalar
+1. **Market Regime Agent** - Market condition classification
+2. **Screener Agent** - High-quality stock discovery
+3. **Signal Agent** - 5-minute technical analysis
+4. **Score Engine** - Probabilistic trade evaluation
+5. **Hard Gate Rules** - Non-negotiable risk thresholds
+6. **Risk Manager** - Position sizing and drawdown control
+7. **Exit Rules** - Dynamic exit logic
+8. **Execution Engine** - Alpaca paper/live trading
+9. **Logging System** - Complete trade documentation
+10. **Learning Agent** - Daily performance analysis
 
-✅ **Nima qilshimiz mumkin:**
-- Long-only pozitsiyalar (faqat sotib olish)
-- NYSE, NASDAQ, AMEX common stocks
-- Paper trading (default)
-- Bracket orders (stop + target)
-- 0.5% risk per trade
-- Adaptive market regimes
+## Key Features
 
-❌ **Nima taqiqlandi:**
+✅ **Capital Protection First** - Risk per trade: 0.5% of account
+✅ **Adaptive Logic** - Adjusts to BULL, NEUTRAL, BEAR, NEWS_LOCK regimes
+✅ **Score-Based Entries** - Minimum score 70 for BUY, 60-69 for WATCH
+✅ **Hard Gate Rules** - Non-negotiable liquidity and technical thresholds
+✅ **Bracket Orders** - Automatic stop loss and take profit
+✅ **Paper Trading First** - 30-day minimum backtest before live
+✅ **Complete Logging** - Every signal and trade documented
+✅ **Daily Learning** - Analyze setup performance and optimize
+
+## Trading Rules
+
+### What We Do
+- Long-only positions
+- NYSE, NASDAQ, AMEX common stocks only
+- Average volume > 1M shares
+- Dollar volume > $50M
+- 5-minute timeframe
+- VWAP reclaim, higher low, breakout setups
+
+### What We Don't Do
 - Short selling
 - Options
-- Margin / Leverage
+- Margin or leverage
 - OTC stocks
 - Force trades
 
-## 🏗️ Tizim Arxitekturasi
+## Setup Types
 
-### 1. Market Regime Agent
-Bozor holatini tahlil qiladi va klassifikatsiya qiladi:
-- **BULL** - Sotish mumkin (breakout, trend continuation)
-- **NEUTRAL** - Faqat pullback va VWAP reclaim
-- **BEAR** - Sotish taqiqlandi
-- **NEWS_LOCK** - Yangilik taqiqlandi
+1. **VWAP Reclaim** - Price bounces above VWAP after pullback
+2. **Higher Low Pullback** - Price pulls back to support, forms higher low
+3. **Resistance Breakout** - Price breaks above daily/intraday resistance
+4. **Trend Continuation** - Price continues higher in strong market only
 
-**Tahlil qiladi:**
-- SPY narxi vs MA200/MA50
-- VIX darajasi
-- Market breadth
-- Major news (CPI, FOMC, geopolitical)
-
-### 2. Screener Agent
-Har minutda high-quality kandidatlarni qidiradi:
-```
-✓ Average Volume > 1,000,000
-✓ Dollar Volume > $50,000,000
-✓ RVOL (Relative Volume) > 1.5x
-✓ Today Change: 0% - 10%
-✓ Not already up > 20%
-✓ Tight Spread (< $0.05)
-✓ Strong Catalyst
-✓ ORTEX Squeeze Potential
-```
-
-### 3. Signal Agent
-5-minute technical analysis:
-- Price > VWAP
-- Price > EMA9 > EMA20
-- RSI 52-72
-- ADX > 18-20
-- Higher Low, VWAP Reclaim, or Breakout
-- Buy > Sell pressure
-- No parabolic candles
-
-### 4. Score Engine
-Probabilistic 100-ball scoring:
-- Volume Score: 0-20
-- Trend Score: 0-20
-- Structure Score: 0-20
-- Momentum Score: 0-20
-- Market Score: 0-10
-- Catalyst Score: 0-10
-
-**Decision:**
-- Score >= 70: **BUY**
-- Score 60-69: **WATCH**
-- Score < 60: **REJECT**
-
-### 5. Hard Gate Rules
-Kesilmas qoidalar (score bilan o'zgartirib bo'lmaydi):
-```
-❌ Volume < 1M yoki Dollar < $50M
-❌ Price < VWAP
-❌ Price < EMA20
-❌ Risk/Reward < 1:2
-❌ No clear stop loss
-❌ Market panic
-❌ NEWS_LOCK active
-❌ Parabolic chase
-```
-
-### 6. Risk Manager
-Position sizing va risk control:
-```
-Risk per Trade:       0.5% of account
-Daily Max Loss:       2% of account
-Min Risk/Reward:      1:2
-Stop Loss:            Clear support/structure
-Partial Take Profit:  +2%
-Main Target:          1:2 R/R
-Move Stop:            Breakeven after +1R
-```
-
-### 7. Exit Rules
-Automatik exit triggerlar:
-- Take profit hit
-- Stop loss hit
-- Close < EMA9 for 2 candles
-- Loses VWAP
-- Structure breaks
-- Sell pressure + price < EMA9
-- Market regime turns bad
-- Session near close
-
-### 8. Execution Engine
-Alpaca API orqali:
-- Bracket orders (buy + stop + target)
-- Paper trading default
-- Order management
-- Live trading (disabled by default)
-
-### 9. Learning Agent
-Har kuni analiz qiladi:
-- Setup performance tracking
-- Fake breakout detection
-- Market regime analysis
-- Parameter recommendations
-- Win rate, profit factor, drawdown
-
-## 📊 Entry Setup Turlari
-
-### A. VWAP Reclaim
-Narxi pullback dan keyin VWAP dan sakrab chiqadi.
-```
-Entry: VWAP dan yuqorida
-Stop: VWAP dan pastda
-Target: +2% partial, +2R main
-```
-
-### B. Higher Low Pullback
-Narxi support yaqinida yuqoriroq low qiladi.
-```
-Entry: Higher low break
-Stop: Previous low dan pastda
-Target: +2% partial, +2R main
-```
-
-### C. Resistance Breakout
-Narxi intraday/daily resistansni buza chiqadi.
-```
-Entry: Resistance break
-Stop: Resistance dan pastda
-Target: +2% partial, +2R main
-```
-
-### D. Trend Continuation
-Faqat BULL bozorida mavjudoti trend davomlanadi.
-```
-Entry: Higher high, EMA alignment
-Stop: Recent support
-Target: +2% partial, +2R main
-```
-
-## 📈 Market Regime Rules
-
-### BULL Regime
-```yaml
-Allow Breakout:           TRUE
-Allow Trend Continuation: TRUE
-Allow Pullback:           TRUE
-Allow VWAP Reclaim:       TRUE
-Max New Trades:           5
-Aggressiveness:           HIGH
-```
-
-### NEUTRAL Regime
-```yaml
-Allow Breakout:           FALSE
-Allow Trend Continuation: FALSE
-Allow Pullback:           TRUE
-Allow VWAP Reclaim:       TRUE
-Max New Trades:           2
-Aggressiveness:           LOW
-```
-
-### BEAR Regime
-```yaml
-Allow Breakout:           FALSE
-Allow Trend Continuation: FALSE
-Allow Pullback:           FALSE
-Allow VWAP Reclaim:       FALSE
-Max New Trades:           0
-Aggressiveness:           NONE
-```
-
-### NEWS_LOCK Regime
-```yaml
-All New Trades:           REJECTED
-Manage Existing:          YES
-Wait for Clarity:         YES
-```
-
-## 🚀 Boshlash
-
-### 1. Setup
-```bash
-# Clone repo
-git clone https://github.com/Hasan202419/algo-trading-system.git
-cd algo-trading-system
-
-# Virtual environment
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
-```
-
-### 2. Configure
-```bash
-# Copy environment template
-cp .env.example .env
-
-# Edit .env va API kalitlarni kiriting:
-# ALPACA_API_KEY=...
-# ALPACA_SECRET_KEY=...
-# POLYGON_API_KEY=...
-```
-
-### 3. Paper Trading
-```bash
-# Real-time monitoring
-python main.py --mode=paper
-
-# Dashboard (alohida terminal)
-python monitor.py
-
-# Daily analysis
-python learning_agent.py
-```
-
-### 4. Live Trading (Keyin)
-```bash
-# Minimum 30 trading days paper test kerak
-# Minimum 10 trades
-# Win rate > 40%
-# Profit factor > 1.5
-# Max drawdown < 10%
-
-python main.py --mode=live
-```
-
-## 📝 Logging
-
-Har trade quyidagi ma'lumotlar bilan qaydlanadi:
-```json
-{
-  "ticker": "AAPL",
-  "timestamp": "2026-05-13 10:30:00",
-  "market_regime": "BULL",
-  "setup_type": "VWAP_RECLAIM",
-  "score": 75,
-  "entry_price": 150.25,
-  "stop_loss": 149.50,
-  "target_1": 153.25,
-  "target_2": 156.25,
-  "position_size": 100,
-  "risk_per_share": 0.75,
-  "risk_reward_ratio": 2.0,
-  "exit_price": 156.25,
-  "profit_loss": 600,
-  "trade_duration": "45 minutes",
-  "result": "WIN",
-  "reason": "Target hit"
-}
-```
-
-## 📊 Performance Metrics
+## Entry Criteria
 
 ```
-Total Trades:        X
-Win Rate:            X%
-Profit Factor:       X
-Average Win:         +X%
-Average Loss:        -X%
-Largest Win:         +X%
-Largest Loss:        -X%
-Daily Max Loss Hit:  X days
-Max Drawdown:        X%
-Risk/Reward Avg:     1:X
+✓ Price above VWAP
+✓ Price above EMA9
+✓ Price above EMA20
+✓ EMA9 > EMA20
+✓ RSI 52-72 (ideally)
+✓ ADX > 18-20 (ideally)
+✓ Higher Low or VWAP reclaim
+✓ Buy pressure > sell pressure
+✓ No parabolic candles
+✓ Score >= 70
 ```
 
-## ⚠️ Muhim Disclaimer
+## Risk Management
+
+```
+Risk per Trade:     0.5% of account
+Daily Max Loss:     2% of account
+Default Risk/Reward: 1:2 minimum
+Stop Loss Placement: Clear support/structure
+Take Profit 1:      +2% (partial exit)
+Take Profit 2:      1:2 R/R (main target)
+Move Stop:          Breakeven after +1R
+```
+
+## Market Regime Classification
+
+### BULL
+- SPY above key moving averages
+- VIX < 25
+- Breadth positive
+- Allow breakout and trend continuation
+
+### NEUTRAL
+- SPY between support/resistance
+- Allow pullback near support
+- VWAP reclaim only
+
+### BEAR
+- SPY below key moving averages
+- Reject most long trades
+- Wait for very strong catalyst
+
+### NEWS_LOCK
+- Major news event (CPI, FOMC, geopolitical)
+- Reject all new trades
+- Manage existing positions
+
+## Screener Criteria
+
+```
+Average Volume:     > 1,000,000
+Dollar Volume:      > $50,000,000
+RVOL:               > 1.5x
+Current Volume:     > 1.5x average
+Today Change:       0% to +10%
+Not already up:     < 20%
+Spread:             Tight (< $0.05 usually)
+Catalyst:           News, earnings, FDA, etc.
+ORTEX Pressure:     High short squeeze potential
+```
+
+## Score Engine (100 points)
+
+```
+Volume Score:       0-20 points
+Trend Score:        0-20 points
+Structure Score:    0-20 points
+Momentum Score:     0-20 points
+Market Score:       0-10 points
+Catalyst Score:     0-10 points
+
+Total Score:        BUY (70+) / WATCH (60-69) / REJECT (<60)
+```
+
+## Hard Gate Rules (Cannot be overridden by score)
+
+```
+❌ Hard Gate Fails if:
+   - Liquidity weak (volume < 1M or dollar volume < $50M)
+   - Price below VWAP
+   - Price below EMA20
+   - Risk/reward < 1:2
+   - No clear stop loss
+   - Market in panic
+   - NEWS_LOCK active
+   - Parabolic chase
+   - Tight spread (> $0.05)
+```
+
+## Exit Triggers
+
+```
+✓ Take profit hit
+✓ Stop loss hit
+✓ Close below EMA9 for 2 candles
+✓ Loses VWAP
+✓ Structure breaks (lower low)
+✓ Sell pressure dominant + below EMA9
+✓ Market condition turns bad
+✓ Session near close
+```
+
+## Paper Trading Requirements
+
+- Minimum 30 trading days
+- Minimum 10 trades
+- Win rate > 40%
+- Profit factor > 1.5
+- Max drawdown < 10%
+- Review all setup types
+
+## Getting Started
+
+1. **Setup Environment**
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # or venv\\Scripts\\activate on Windows
+   pip install -r requirements.txt
+   ```
+
+2. **Configure Credentials**
+   ```bash
+   cp .env.example .env
+   # Edit .env with your Alpaca API keys
+   ```
+
+3. **Run Paper Trading**
+   ```bash
+   python main.py --mode=paper
+   ```
+
+4. **Monitor Signals**
+   ```bash
+   python monitor.py
+   ```
+
+5. **Daily Analysis**
+   ```bash
+   python learning_agent.py
+   ```
+
+## Logging & Analytics
+
+Every trade is logged with:
+- Ticker, entry time, market regime
+- Setup type, total score, reason
+- Entry, stop loss, target levels
+- Position size, risk per share
+- Exit price, P&L, reason for exit
+- Trade duration, setup quality
+
+## Important Disclaimers
 
 ⚠️ **Paper trading only by default**
-⚠️ **Past performance ≠ Future results**
+⚠️ **Past performance does not guarantee future results**
 ⚠️ **Always review system output manually**
 ⚠️ **Use at your own risk**
 ⚠️ **Never trade with money you cannot afford to lose**
 
-## 📁 Directory Structure
+## Version
 
-```
-algo-trading-system/
-├── README.md
-├── requirements.txt
-├── .env.example
-├── config/
-│   └── default_config.yaml
-├── src/
-│   ├── __init__.py
-│   ├── agents/
-│   │   ├── __init__.py
-│   │   ├── market_regime_agent.py
-│   │   ├── screener_agent.py
-│   │   ├── signal_agent.py
-│   │   └── learning_agent.py
-│   ├── engines/
-│   │   ├── __init__.py
-│   │   └── score_engine.py
-│   ├── managers/
-│   │   ├── __init__.py
-│   │   └── risk_manager.py
-│   ├── execution/
-│   │   ├── __init__.py
-│   │   └── execution_engine.py
-│   └── utils/
-│       ├── __init__.py
-│       └── logger.py
-├── logs/
-│   ├── signals.json
-│   ├── trades.json
-│   └── performance.json
-├── main.py
-├── monitor.py
-└── learning_agent.py
-```
+**v1.0.0** - Initial Release (May 2026)
 
-## 🔧 Configuration
+## License
 
-Barcha parametrlar `config/default_config.yaml` da:
-- Market regime rules
-- Screener filters
-- Technical indicators
-- Score engine weights
-- Risk management
-- Exit rules
-
-## 📚 Qo'llanma
-
-1. Market Regime Agent tahlili
-2. Screener har minutda aktsiya topadi
-3. Signal Agent technical analysis qiladi
-4. Score Engine bahogi hisoblaydi
-5. Hard Gates check qiladi
-6. Risk Manager position sizing qiladi
-7. Execution bracket order yuboradi
-8. Learning Agent kunlik analiz qiladi
-
-## 🤝 Support
-
-Ishlashida muammo bo'lsa, logs folder da kayt ko'ring.
-
-## 📄 License
-
-Private - Faqat educationа va personal use uchun.
-
----
-
-**Version:** v1.0.0 (May 2026)
-**Author:** Hasan AI Trading Agent
-**Status:** Beta (Paper Trading)
+Private - For educational and personal use only.

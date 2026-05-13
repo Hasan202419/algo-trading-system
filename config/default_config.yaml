@@ -1,5 +1,4 @@
-# Hasan AI Algo Trading System Configuration
-# Version: 1.0.0
+# System Configuration
 
 # Market Regime Configuration
 market_regime:
@@ -10,7 +9,6 @@ market_regime:
     allow_breakout: true
     allow_trend_continuation: true
     allow_pullback: true
-    description: "Bullish market - Allow all quality setups"
   
   neutral:
     spy_range_tight: true
@@ -18,18 +16,15 @@ market_regime:
     allow_trend_continuation: false
     allow_pullback: true
     allow_vwap_reclaim: true
-    description: "Neutral market - Only pullback/VWAP setups"
   
   bear:
     spy_below_ma200: true
     reject_most_trades: true
     allow_strong_catalyst_only: true
-    description: "Bearish market - Avoid new longs"
   
   news_lock:
     reject_all_trades: true
     manage_existing_only: true
-    description: "NEWS_LOCK - Manage existing positions only"
 
 # Screener Configuration
 screener:

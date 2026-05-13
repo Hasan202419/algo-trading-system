@@ -1,9 +1,10 @@
 """Market Regime Agent - Classifies market conditions"""
 
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 from enum import Enum
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, Optional, List
+import numpy as np
 from dataclasses import dataclass
 
 logger = logging.getLogger(__name__)
@@ -37,11 +38,6 @@ class MarketRegimeAgent:
     """Analyzes market conditions and classifies market regime"""
     
     def __init__(self, config: Dict = None):
-        """Initialize market regime agent
-        
-        Args:
-            config: Configuration dictionary
-        """
         self.config = config or {}
         self.regime_history = []
         self.last_regime = None
@@ -54,24 +50,10 @@ class MarketRegimeAgent:
                 breadth_percent: float,
                 major_news: List[str] = None,
                 recent_macro_events: List[str] = None) -> RegimeAnalysis:
-        """Analyze market regime
-        
-        Args:
-            spy_price: Current SPY price
-            spy_ma200: SPY 200-day moving average
-            spy_ma50: SPY 50-day moving average
-            vix_level: VIX index level
-            breadth_percent: % of NYSE stocks above 50-day MA
-            major_news: List of major news events
-            recent_macro_events: Macro events (CPI, FOMC, etc)
-            
-        Returns:
-            RegimeAnalysis object
-        """
+        """Analyze market regime"""
         major_news = major_news or []
         recent_macro_events = recent_macro_events or []
         
-        # Check for NEWS_LOCK conditions
         if self._is_news_lock(major_news, recent_macro_events):
             analysis = RegimeAnalysis(
                 regime=MarketRegime.NEWS_LOCK,
@@ -86,7 +68,6 @@ class MarketRegimeAgent:
             self._log_analysis(analysis)
             return analysis
         
-        # Determine regime based on technical indicators
         regime, confidence = self._classify_regime(
             spy_price, spy_ma200, spy_ma50, vix_level, breadth_percent
         )
@@ -127,7 +108,7 @@ class MarketRegimeAgent:
                         spy_ma200: float,
                         spy_ma50: float,
                         vix_level: float,
-                        breadth_percent: float) -> Tuple[MarketRegime, float]:
+                        breadth_percent: float) -> tuple:
         """Classify market regime based on technical indicators"""
         scores = {'bull': 0, 'neutral': 0, 'bear': 0}
         
@@ -166,7 +147,6 @@ class MarketRegimeAgent:
         else:
             scores['bear'] += 30
         
-        # Determine regime
         total = sum(scores.values())
         if total == 0:
             return MarketRegime.NEUTRAL, 0.50
@@ -192,25 +172,21 @@ class MarketRegimeAgent:
         )
     
     def is_bullish(self) -> bool:
-        """Check if market is in bullish regime"""
         if not self.last_regime:
             return False
         return self.last_regime.regime == MarketRegime.BULL
     
     def is_neutral(self) -> bool:
-        """Check if market is neutral"""
         if not self.last_regime:
             return True
         return self.last_regime.regime == MarketRegime.NEUTRAL
     
     def is_bearish(self) -> bool:
-        """Check if market is in bearish regime"""
         if not self.last_regime:
             return False
         return self.last_regime.regime == MarketRegime.BEAR
     
     def is_news_locked(self) -> bool:
-        """Check if market is in NEWS_LOCK"""
         if not self.last_regime:
             return False
         return self.last_regime.regime == MarketRegime.NEWS_LOCK
